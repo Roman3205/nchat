@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="min-h-screen">
     <div class="z-10 backdrop-blur-md w-full sticky top-0 flex justify-between p-5">
         <NuxtLink class="flex cursor-pointer transition duration-300 hover:opacity-80 items-center gap-x-2" to="/">
           <UIcon

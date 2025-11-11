@@ -1,10 +1,10 @@
 <template>
-  <div class="flex h-screen justify-center items-center">
+  <div class="flex min-h-[calc(100vh-65px)] justify-center items-center">
     <UCard class="max-w-[600px] w-[500px] mx-auto" :ui="{body: {padding: 'p-5 sm:p-0'}}">
         <template #header>
             <div class="flex items-center justify-center gap-x-3 text-primary">
                 <UIcon name="lucide:message-square-text" class="w-9 h-9 font-semibold" />
-                <div class="text-primary font-semibold text-center text-3xl">NChat</div>
+                <div class="text-primary font-semibold text-center text-2xl">Join or create a room</div>
             </div>
         </template>
         <UForm :state="state" @submit="onSubmit" class="flex flex-col gap-6">
