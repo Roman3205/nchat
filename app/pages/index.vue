@@ -12,7 +12,17 @@
                 <UInput v-model="state.username" class="w-full" placeholder="Enter your name" />
             </UFormField>
             <UFormField label="Room" name="room">
-                <USelect v-model="state.room" :options="rooms" class="w-full" />
+                <UInput v-model="state.room" placeholder="Enter room id or generate new one" class="w-full">
+                    <template #trailing>
+                        <UButton
+                        size="xs"
+                        color="primary"
+                        variant="solid"
+                        label="Generate"
+                        @click="generateId"
+                        />
+                    </template>
+                </UInput>
             </UFormField>
             <UButton type="submit" size="xl" block :disabled="!state.room || !state.username">Join chat</UButton>
         </UForm>
@@ -23,15 +33,18 @@
 <script lang="ts" setup>
 import type { FormSubmitEvent } from '@nuxt/ui';
 
-const rooms = ['nuxt installation', 'nuxt guide', 'nuxt api', 'nuxt examples']
-
 const state = reactive({
     username: '',
-    room: rooms[0]
+    room: ''
 })
 
 const onSubmit = async (e: FormSubmitEvent<any>) => {
     navigateTo(`/chat?username=${state.username}&room=${state.room}`)
+}
+
+const generateId = () => {
+    const id = randomId()
+    state.room = id
 }
 </script>
 
