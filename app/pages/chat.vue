@@ -1,6 +1,6 @@
 <template>
   <div class="p-5 min-h-[calc(100vh-65px)] flex flex-col">
-    <div class="flex md:flex-row flex-col gap-3">
+    <div class="flex md:flex-row flex-col flex-1 gap-3 max-h-[calc(100vh-170px)]">
       <div class="bg-slate-100 dark:bg-gray-800 rounded-lg py-4 px-6">
         <div class="mb-4">
           <div class="flex items-center gap-x-2 mb-2 px-3 py-1.5 rounded-md bg-white dark:bg-gray-600">
@@ -10,7 +10,7 @@
             />
             <div class="text-base">Room Name</div>
           </div>
-          <div class="text-gray-400 mb-2 capitalize text-base ml-2">
+          <div class="text-gray-400 mb-2 text-base ml-2">
             {{ currentRoom }}
           </div>
         </div>
@@ -29,7 +29,7 @@
           </div>
         </div>
       </div>
-      <div class="overflow-y-auto max-h-[615px] p-4 md:p-8 flex-1 border-2 border-gray-200 dark:border-gray-700 rounded-lg">
+      <div class="overflow-y-auto  p-4 md:p-8 flex-1 border-2 border-gray-200 dark:border-gray-700 rounded-lg">
         <div
           class="bg-transparent w-full mb-3 flex"
           v-for="(chat, i) in chats"
@@ -118,7 +118,6 @@ onMounted(() => {
 
     socket.value.on('roomMessages', (payload: {onlyFor: string, messages: Chat[]}) => {
         if (String(route.query.username).toLowerCase() === payload.onlyFor.toLowerCase()) {
-            console.log(111)
             chats.value = payload.messages
         }
     })
