@@ -22,7 +22,7 @@ export async function getCurrentUser(id: string) {
 
 export async function userLeave(id: string) {
     let users = await getUsers()
-    const index = users.findIndex(user => user.id === id)
+    const index = users?.findIndex(user => user.id === id)
 
     if (index !== -1) {
         let user = users.splice(index, 1)[0]
@@ -33,12 +33,12 @@ export async function userLeave(id: string) {
 
 export async function getRoomUsers(room: string) {
     let users = await getUsers()
-    return users.filter(user => user.room === room)
+    return users?.filter(user => user.room === room)
 }
 
 export async function getRoomMessages(room: string) {
     let messages = await getMessages()
-    return messages.filter(message => message.room === room)
+    return messages?.filter(message => message.room === room)
 }
 
 export async function newMessage(message: Chat, room: string) {

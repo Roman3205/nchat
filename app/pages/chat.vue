@@ -29,7 +29,7 @@
           </div>
         </div>
       </div>
-      <div class="overflow-y-auto  p-4 md:p-8 flex-1 border-2 border-gray-200 dark:border-gray-700 rounded-lg">
+      <div ref="chatEl" class="overflow-y-auto  p-4 md:p-8 flex-1 border-2 border-gray-200 dark:border-gray-700 rounded-lg">
         <div
           class="bg-transparent w-full mb-3 flex"
           v-for="(chat, i) in chats"
@@ -52,6 +52,9 @@
               {{ chat.text }}
             </div>
           </div>
+        </div>
+        <div v-if="typingUser" class="bg-transparent w-full mb-3 flex">
+          {{ typingUser }} is typing ...
         </div>
       </div>
     </div>
@@ -82,6 +85,7 @@
 
 <script setup lang="ts">
 import { io, type Socket } from 'socket.io-client'
+import { watchDebounced } from '@vueuse/core';
 
 const route = useRoute()
 
@@ -90,14 +94,26 @@ const chats = ref<Chat[]>([])
 const users = ref<User[]>([])
 const socket = ref<Socket>()
 const currentRoom = ref('')
+const typingUser = ref('')
+const chatEl = useTemplateRef<HTMLDivElement | null>('chatEl')
 
 const sendMessage = async () => {
     socket.value?.emit('chatMessage', message.value)
-    await nextTick(() => message.value = '')
+    await nextTick(() => {
+      message.value = ''
+    })
 }
+
+watchDebounced(message, () => {
+    if (message.value) {
+      socket.value?.emit('typing')
+    }
+}, {debounce: 1500, maxWait: 4000})
 
 onMounted(() => {
     const {username, room} = route.query as Partial<Chat>
+    let timer: NodeJS.Timeout | null = null
+
     if (!username || !room) {
         navigateTo('/')
     }
@@ -107,8 +123,20 @@ onMounted(() => {
     })
 
     socket.value.emit('roomJoin', {username, room})
-    socket.value.on('message', (payload: Chat) => {
+    socket.value.on('message', async (payload: Chat) => {
+        typingUser.value = ''
         chats.value.push(payload)
+        if (payload.username === String(route.query.username)) {
+          await nextTick(() => {
+            chatEl.value.scrollTop = chatEl.value?.scrollHeight
+          })
+        }
+    })
+
+    socket.value.on('showTyping', (username: string) => {
+      typingUser.value = username
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => typingUser.value = '', 6000)
     })
 
     socket.value.on('roomUsers', (payload: {room: string, users: User[]}) => {
@@ -116,10 +144,8 @@ onMounted(() => {
         users.value = payload.users
     })
 
-    socket.value.on('roomMessages', (payload: {onlyFor: string, messages: Chat[]}) => {
-        if (String(route.query.username).toLowerCase() === payload.onlyFor.toLowerCase()) {
-            chats.value = payload.messages
-        }
+    socket.value.on('roomMessages', (messages: Chat[]) => {
+        chats.value = messages
     })
 })
 

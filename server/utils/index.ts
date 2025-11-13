@@ -18,7 +18,7 @@ export function initSocket(event: H3Event) {
             const user = await userJoin({...payload, id: socket.id})
             socket.join(user.room)
             socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} has joined the chat`))
-            io.to(user.room).emit('roomMessages', {onlyFor: user.username, messages: await getRoomMessages(user.room)})
+            io.to(user.id).emit('roomMessages', await getRoomMessages(user.room))
             io.to(user.room).emit('roomUsers', {
                 room: user.room,
                 users: await getRoomUsers(user.room)
@@ -31,6 +31,10 @@ export function initSocket(event: H3Event) {
                 await newMessage(formatMessage(user.username, payload), user.room)
                 io.to(user.room).emit('message', message)
             }
+        })
+        socket.on('typing', async () => {
+            const user = await getCurrentUser(socket.id) as User
+            socket.broadcast.to(user.room).emit('showTyping', user.username)
         })
         socket.on('disconnect', async () => {
             const user = await userLeave(socket.id)
